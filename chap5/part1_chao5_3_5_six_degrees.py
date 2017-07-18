@@ -3,7 +3,7 @@ import re
 import pymysql
 from urllib.request import urlopen
 
-conn = pymysql.connect(host='127.0.0.1', unix_socket='/tmp/mysql.sock', user='root', passwd=None, db='mysql', charset='utf8')
+conn = pymysql.connect(host='127.0.0.1', unix_socket='/tmp/mysql.sock', user='root', passwd='ehruddl3', db='mysql', charset='utf8')
 
 cur = conn.cursor()
 cur.execute("USE wikipedia")
@@ -26,8 +26,8 @@ def insertLink(fromPageId, toPageId):
 pages = set()
 def getLinks(pageUrl, recursionLevel):
     global pages
-    if recursionLevel > 4:
-        return;
+    if recursionLevel == 4:
+        return
     pageId = insertPageIfNotExists(pageUrl)
     html = urlopen("http://en.wikipedia.org"+pageUrl)
     bsObj = BeautifulSoup(html, "html.parser")
@@ -38,6 +38,8 @@ def getLinks(pageUrl, recursionLevel):
             newPage = link.attrs['href']
             pages.add(newPage)
             getLinks(newPage, recursionLevel+1)
+        else:
+            print("Skipping: " + str(link.attrs['href'])+" found on "+pageUrl)
 getLinks("/wiki/Kevin_Bacon", 0)
 cur.close()
 conn.close()
